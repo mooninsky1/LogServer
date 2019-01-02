@@ -6,6 +6,7 @@
   "dependencies": {
     "express": "4.x",
     "mssql": "latest",
-    "urlencode": "latest"
+    "urlencode": "latest",
+    "redis": "2.8.0"
   }
 }
