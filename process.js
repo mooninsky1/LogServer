@@ -54,7 +54,7 @@ function online(head,body){
         "count": online,
         "time": time
     };
-    let ret = db.lpush("online"+zoneid,JSON.stringify(json));
+    let ret = db.rpush("online"+zoneid,JSON.stringify(json));
 
 }
 function leveup(head,body){
