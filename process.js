@@ -8,7 +8,7 @@ var db = redis.createClient(conf.GM_LOGSERVER_DB.port, conf.GM_LOGSERVER_DB.serv
 db.on("error", function (error) {
     console.log(error);
 });
-
+db.auth(conf.GM_LOGSERVER_DB.password);
 db.on('connect', function(){
     console.log('Redis连接成功.');
     var ret = db.select(0);
