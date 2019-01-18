@@ -23,6 +23,10 @@ app.get('/Images/echarts.js', function (req, res) {
     var num = req.params.num;
     res.download(__dirname + "/Images/echarts.js");
 });
+app.get('/Images/*', function (req, res) {
+    var num = req.params.num;
+    res.download(__dirname + req.path);
+});
 var Storage = multer.diskStorage({
     destination: function (req, file, callback) {
         callback(null, "./Images");
