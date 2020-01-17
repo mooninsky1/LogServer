@@ -98,7 +98,7 @@ app.get('/action', function (req, res) {
                 var def = 0;
                 result.recordset.forEach(element => {
                     if(element.open > 0){
-                        list.push({stat:element.stat, name:element.name, id:element.id });
+                        list.push({stat:element.stat, name:element.name, id:element.id,tips:element.tips });
                         if(element.flag>=1){
                             def = element.id;
                         }
