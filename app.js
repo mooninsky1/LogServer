@@ -123,6 +123,70 @@ app.get('/action', function (req, res) {
         //});
         return;
     }
+    else if (req.query.opt == "geturl") {
+        var sql = "SELECT * from url";
+        db.querySql(sql, "", function (err, result) {//查询所有users表的数据
+            if (err) {
+                console.log("db err");
+            }
+            else {
+                //console.log(result);
+                var list=[];
+                result.recordset.forEach(element => {
+                        list.push({url:element.url});
+                });
+                var urllist={list:list};
+               // console.log(JSON.stringify(serverlist));
+                res.end(JSON.stringify(urllist));
+                return;
+            }
+        });
+    }
+    else if (req.query.opt == "getVersionInfo") {
+        var sql = "SELECT * from updateflag";
+        db.querySql(sql, "", function (err, result) {//查询所有users表的数据
+            if (err) {
+                console.log("db err");
+            }
+            else {
+                var flag;
+                var version;
+                result.recordset.forEach(element => {
+                    flag = element.flag;
+                    version = element.version;
+                });
+                var sql1 = "SELECT * from mac";
+                db.querySql(sql1, "", function (err, result) {//查询所有users表的数据
+                    if (err) {
+                        console.log("db err");
+                    }
+                    else {
+                        var listMac=[];
+                        result.recordset.forEach(element => {
+                            listMac.push(element.mac);
+                        });
+                        var sql2 = "SELECT * from url";
+                        db.querySql(sql2, "", function (err, result) {//查询所有users表的数据
+                            if (err) {
+                                console.log("db err");
+                            }
+                            else {
+                                //console.log(result);
+                                var listUrl=[];
+                                result.recordset.forEach(element => {
+                                    listUrl.push(element.url);
+                                });
+                                var urllist={url:listUrl,devices:listMac,status:flag,version:version};
+                               // console.log(JSON.stringify(serverlist));
+                                res.end(JSON.stringify(urllist));
+                                return;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
 });
 app.post('/notice', function(req,res){
     console.log('notice post')
