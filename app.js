@@ -6,6 +6,8 @@ var  urlencode = require('urlencode');
 var  log_process = require('./process.js');
 var db = require('./db.js');
 var multer = require('multer');//Multer是一个用于处理multipart / form-data的node.js中间件，主要用于上传文件。它构建在busboy基础上以提高效率。点击 这里 阅读更多关于multer包。
+var iconv = require("iconv-lite");
+var mycrypto = require('./crypto.js');
 
 //这3行代码很关键，要不然post上来的数据取不到body
 const bodyParser = require('body-parser');
@@ -97,8 +99,9 @@ app.get('/action', function (req, res) {
                 var list=[];
                 var def = 0;
                 result.recordset.forEach(element => {
-                    if(element.open > 0){
-                        list.push({stat:element.stat, name:element.name, id:element.id,tips:element.tips });
+                    //if(element.open > 0)
+                    {
+                        list.push({stat:element.stat, name:element.name, id:element.id,tips:element.tips,open:element.open });
                         if(element.flag>=1){
                             def = element.id;
                         }
@@ -184,6 +187,97 @@ app.get('/action', function (req, res) {
                         });
                     }
                 });
+            }
+        });
+    }
+    else if (req.query.opt == "getVersionInfo_encrypt") {
+        var sql = "SELECT * from updateflag";
+        db.querySql(sql, "", function (err, result) {//查询所有users表的数据
+            if (err) {
+                console.log("db err");
+            }
+            else {
+                var flag;
+                var version;
+                result.recordset.forEach(element => {
+                    flag = element.flag;
+                    version = element.version;
+                });
+                var sql1 = "SELECT * from mac";
+                db.querySql(sql1, "", function (err, result) {//查询所有users表的数据
+                    if (err) {
+                        console.log("db err");
+                    }
+                    else {
+                        var listMac=[];
+                        result.recordset.forEach(element => {
+                            listMac.push(element.mac);
+                        });
+                        var sql2 = "SELECT * from url";
+                        db.querySql(sql2, "", function (err, result) {//查询所有users表的数据
+                            if (err) {
+                                console.log("db err");
+                            }
+                            else {
+                                //console.log(result);
+                                var listUrl=[];
+                                result.recordset.forEach(element => {
+                                    listUrl.push(element.url);
+                                });
+                                var urllist={url:listUrl,devices:listMac,status:flag,version:version};
+                               // console.log(JSON.stringify(serverlist));
+                                var soure = JSON.stringify(urllist);
+                                var key = 'hygame';
+                                var encrypted = mycrypto.aesCrypto(soure,key);
+                                var decrypted = mycrypto.aesDecrypto(encrypted, key);
+                                //res.end(JSON.stringify(urllist));
+                                res.end(encrypted);
+                                console.log("source:"+soure);
+                                console.log("encrypted:"+encrypted);
+                                console.log("decrypted:"+decrypted);
+                                return;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    else if(req.query.opt == "logdata"){
+        var opt="",param1="",param2="",param3="",param4="",param5="",user="",time="";
+        opt=req.query.logtype;
+        if(req.query.param1){
+            param1 = req.query.param1
+        }   
+        if(req.query.param2){
+            param2 = req.query.param2
+        }
+        if(req.query.param3){
+            param3 = req.query.param3
+        }
+        if(req.query.param4){
+            param4 = req.query.param4
+        }
+        if(req.query.param5){
+            param5 = req.query.param5
+        }
+        if(req.query.user){
+            user = iconv.encode(req.query.user, "gb2312");
+        }
+        if(req.query.time){
+            time =req.query.time 
+        }
+        res.end("ok");
+        var sql = "insert INTO actorlog ([opt], [param1],[param2], [param3],[param4],[param5],[user],[time]) VALUES('"+opt + "','"+param1 + "','"+param2 +"','"+param3 +"','"+param4 +"','"+param5+"','"+user+"','"+time+"')" ;
+        console.log(sql);
+        db.querySql(sql, "",function (err, result) {//查询所有users表的数据
+            if(err)
+            {
+                console.log("log db err");
+            }
+            else
+            {
+                console.log("log db OK");
             }
         });
     }
