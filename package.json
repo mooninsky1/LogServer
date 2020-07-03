@@ -4,10 +4,12 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "crypto-js": "^4.0.0",
+    "cryptojs": "^2.5.3",
     "express": "4.x",
     "mssql": "latest",
-    "urlencode": "latest",
+    "multer": "^1.2.0",
     "redis": "2.8.0",
-    "multer": "^1.2.0"
+    "urlencode": "latest"
   }
 }

@@ -57,21 +57,24 @@ app.post("/api/Upload", function (req, res) {
 });
 
 app.get('/action', function (req, res) {
-    /*res.writeHead(200,{'Content-Type':'text/html'})
-    fs.readFile('./app.js','utf-8',function(err,data){
-        if(err)
-        {
-            console.error(err);
-            throw err ;
-        }
-        else{
-            return  res.end(data);
-        }
-       
-    });
-    return;
-    */
-    if(req.query.opt == "getnotice")
+    var encrypted = JSON.stringify(req.query);
+   // console.log("req:"+req);
+   // console.log("req json:"+ JSON.stringify(req) );
+    console.log("req.query:"+req.query);
+    console.log("req.query json:"+ JSON.stringify(req.query) );
+
+    for(var item in req.query){ 
+        if(item.length > 0){  //item 表示Json串中的属性，如'name' 
+            encrypted = item;
+            break;
+        } 
+    }
+    var decrypted = mycrypto.aesDecrypto(encrypted);
+    console.log("decrypted:"+decrypted);
+    var url = JSON.parse(decrypted);
+    console.log("opt:"+url["opt"]);
+ 
+    if(url["opt"] == "getnotice")
     {
         //res.writeHead(200,{'Content-Type':'text/html'})
         fs.readFile('./Images/notice.txt','utf-8',function(err,data){
@@ -88,7 +91,7 @@ app.get('/action', function (req, res) {
         return;
        // res.end("getnotice");
     }
-    else if (req.query.opt == "getlist") {
+    else if (url["opt"] == "getlist") {
         var sql = "SELECT * from server";
         //console.log(sql);
         db.querySql(sql, "", function (err, result) {//查询所有users表的数据
@@ -129,7 +132,7 @@ app.get('/action', function (req, res) {
         //});
         return;
     }
-    else if (req.query.opt == "geturl") {
+    else if (url["opt"] == "geturl") {
         var sql = "SELECT * from url";
         db.querySql(sql, "", function (err, result) {//查询所有users表的数据
             if (err) {
@@ -151,7 +154,7 @@ app.get('/action', function (req, res) {
             }
         });
     }
-    else if (req.query.opt == "getVersionInfo") {
+    else if (url["opt"] == "getVersionInfo") {
         var sql = "SELECT * from updateflag";
         db.querySql(sql, "", function (err, result) {//查询所有users表的数据
             if (err) {
@@ -190,7 +193,7 @@ app.get('/action', function (req, res) {
                                 var soure = JSON.stringify(urllist);
                                 var encrypted = mycrypto.aesCrypto(soure);
                                 //var decrypted = mycrypto.aesDecrypto(encrypted);
-                                res.end(JSON.stringify(encrypted));
+                                res.end(encrypted);
                                 return;
                             }
                         });
@@ -199,7 +202,7 @@ app.get('/action', function (req, res) {
             }
         });
     }
-    else if (req.query.opt == "getVersionInfo_encrypt") {
+    else if (url["opt"] == "getVersionInfo_encrypt") {
         var sql = "SELECT * from updateflag";
         db.querySql(sql, "", function (err, result) {//查询所有users表的数据
             if (err) {
@@ -254,45 +257,32 @@ app.get('/action', function (req, res) {
             }
         });
     }
-    else if(req.query.opt == "logdata"){
+    else if(url["opt"] == "logdata"){
         var opt="",param1="",param2="",param3="",param4="",param5="",user="",time="";
         opt=req.query.logtype;
-        if(req.query.param1){
-            param1 = req.query.param1
-            var decrypted = mycrypto.aesDecrypto(req.query.param1);
-            param1 = decrypted;
+        if(url["param1"]){
+            param1 = url["param1"]
         }   
-        if(req.query.param2){
-            param2 = req.query.param2
-            var decrypted = mycrypto.aesDecrypto(req.query.param2);
-            param2 = decrypted;
+        if(url["param2"]){
+            param2 = url["param2"]
         }
-        if(req.query.param3){
-            param3 = req.query.param3
-            var decrypted = mycrypto.aesDecrypto(req.query.param3);
-            param3 = decrypted;
+        if(url["param3"]){
+            param3 = url["param3"]
         }
-        if(req.query.param4){
-            param4 = req.query.param4
-            var decrypted = mycrypto.aesDecrypto(req.query.param4);
-            param4 = decrypted;
+        if(url["param4"]){
+            param4 = url["param4"]
         }
-        if(req.query.param5){
-            param5 = req.query.param5
-            var decrypted = mycrypto.aesDecrypto(req.query.param5);
-            param5 = decrypted;
+        if(url["param5"]){
+            param5 = url["param5"]
         }
-        if(req.query.user){
-            user = iconv.encode(req.query.user, "gb2312");
-            var decrypted = mycrypto.aesDecrypto(req.query.user);
-            user = decrypted;
+        if(url["user"]){
+            user = iconv.encode(url["user"], "gb2312");
         }
-        if(req.query.time){
-            time =req.query.time 
-            var decrypted = mycrypto.aesDecrypto(req.query.time);
-            time = decrypted;
+        if(url["time"]){
+            time =url["time"]
         }
-        res.end("ok");
+        //res.end("ok");
+        res.end(mycrypto.aesCrypto('OK'));
         var sql = "insert INTO actorlog ([opt], [param1],[param2], [param3],[param4],[param5],[user],[time]) VALUES('"+opt + "','"+param1 + "','"+param2 +"','"+param3 +"','"+param4 +"','"+param5+"','"+user+"','"+time+"')" ;
         console.log(sql);
         db.querySql(sql, "",function (err, result) {//查询所有users表的数据
