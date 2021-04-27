@@ -9,7 +9,7 @@
     "express": "4.x",
     "mssql": "latest",
     "multer": "^1.2.0",
-    "redis": "2.8.0",
+    "redis": "3.1.1",
     "urlencode": "latest"
   }
 }
